@@ -1,4 +1,5 @@
 const express = require('express');
+const async = require('hbs/lib/async');
 const app = express();
 const pool = require('./db');
 
@@ -13,6 +14,7 @@ app.get('/todos', async(req, res)=> {
         console.error(err);
     }
 })
+
 //get a todo
 app.get('/todos/:id', async(req, res)=>{
     const {id} = req.params;
@@ -24,7 +26,6 @@ app.get('/todos/:id', async(req, res)=>{
     }
 })
 //create a todo
-
  app.post('/todos', async (req, res)=> {
     try{
         const {description} = req.body
@@ -34,10 +35,36 @@ app.get('/todos/:id', async(req, res)=>{
         console.error(err);
     }
  })
+
 //update a todo
+app.put('/todos/:id', async(req, res)=> {
+    
+    try{
+        const {id} = req.params;
+        const {description} = req.body;
+        const updatedTodo = await pool.query("UPDATE todo SET description = $1 WHERE todo_id = $2", [description, id]);
+        res.json("Todo was updated");        
+    }catch(err){
+        console.error(err);
+    }
+
+
+})
 
 //delete a todo
+app.delete('/todos/:id', async(req, res)=>{
+    try{
+        const {id} = req.params;
+        const deleteTodo = await pool.query("DELETE FROM todo WHERE todo_id= $3", [id]);
+        res.json({
+            "msg": "deletion suuceesful"
+        })
 
+
+    }catch(err){
+        console.error(err);
+    }
+})
 
 
 app.listen(3000, ()=>{
